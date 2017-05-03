@@ -9,6 +9,7 @@ var options = {
 var wineList;
 var wineDict = [];
 
+
 var req = https.request(options, function(resp) {
     console.log('STATUS: ' + resp.statusCode);
 
@@ -38,10 +39,12 @@ function loadJSONObj(data) {
     analyzeWines();
 }
 
+var commonYearsArr = [];
+var commonYears = {};
+
 function analyzeWines() {
     var totalPrice = 0;
     var maxVintage = 0;
-    var commonYears = {};
     var wine;
     for (var key in wineDict) {
         wine = wineDict[key];
@@ -57,7 +60,6 @@ function analyzeWines() {
     console.log(avgBottlePrices);
     console.log(maxVintage);
 
-    var commonYearsArr = [];
     for (var key in commonYears) {
         commonYearsArr.push(key);
     }
@@ -91,6 +93,7 @@ function sendAnalysis(maxVint, avgBtlPrices, commonYearsArr) {
     };
 
     console.log(jsonResp);
+    console.log(getFrequentYears(5));
 
     var req = https.request(postOptions, function(res) {
 
@@ -112,4 +115,19 @@ function sendAnalysis(maxVint, avgBtlPrices, commonYearsArr) {
     req.write(jsonResp);
 
     req.end();
+}
+
+function getFrequentYears(n) {
+
+    var yearsWithFreq = [];
+    for (var key in commonYears) {
+        yearsWithFreq.push([key, commonYears[key]]);
+        //console.log(yearsWithFreq.slice(-1)[0]);
+    }
+
+    var sortedYearArr = yearsWithFreq.sort(function(a, b) {
+        return Number(b[1]) - Number(a[1]);
+    });
+
+    return yearsWithFreq.slice(0, n).map(function(i) { return i[0]; });
 }
